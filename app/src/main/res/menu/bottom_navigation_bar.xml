@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/all_films"
+        android:icon="@drawable/baseline_ondemand_video_24"
+        tools:ignore="MenuTitle" />
+    <item
+        android:id="@+id/favorite"
+        android:icon="@drawable/baseline_favorite_border_24"
+        tools:ignore="MenuTitle"/>
+</menu>
