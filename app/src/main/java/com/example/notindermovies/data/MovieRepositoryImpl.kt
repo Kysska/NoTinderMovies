@@ -15,8 +15,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class MovieRepositoryImpl(private val context : Context) : MovieRepository {
-    private var filmsDeferred: Deferred<List<Movie>>? = null
-
     private val allMovieLD = MutableLiveData<List<Movie>>()
     private val allMovie = mutableListOf<Movie>()
 
@@ -26,15 +24,17 @@ class MovieRepositoryImpl(private val context : Context) : MovieRepository {
 
     val sharedPreferences = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
 
-    init{
-        filmsDeferred = CoroutineScope(Dispatchers.IO).async {
+    private val filmsDeferred by lazy {
+        CoroutineScope(Dispatchers.IO).async {
             apiService.getMovies()
         }
+    }
+    init{
         getFirstFavoriteList()
     }
 
     private suspend fun getAwaitListMovie() : List<Movie>{
-        return filmsDeferred?.await() ?: emptyList()
+        return filmsDeferred.await()
     }
 
 
@@ -42,9 +42,10 @@ class MovieRepositoryImpl(private val context : Context) : MovieRepository {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val movies = getAwaitListMovie()
-                likedMovie.addAll(
-                    movies.filter { getBoolean(it.id) }
-                )
+                movies.filterIndexed { index, movie -> getBoolean(movie.id) }.forEachIndexed { index, movie ->
+                    movie.liked = true
+                    likedMovie.add(index, movie)
+                }
                 likedMovieLD.postValue(likedMovie)
             } catch (e: Exception) {
                 Log.e("MovieRepository", "Error fetching favorite movies: ${e.message}")
@@ -59,21 +60,32 @@ class MovieRepositoryImpl(private val context : Context) : MovieRepository {
 
     override fun likeMovie(index: Int): Boolean {
         return try {
-            likedMovie.add(allMovie[index])
-            likedMovieLD.postValue(likedMovie)
-            saveBoolean(allMovie[index].id, true)
+            if (index < allMovie.size) {
+                val result = saveBoolean(allMovie[index].id, true)
+                if (result) {
+                    allMovie[index].liked = true
+                    likedMovie.add(allMovie[index])
+                    likedMovieLD.postValue(likedMovie)
+                }
+                result
+            } else {
+                false
+            }
         } catch (e: Exception) {
             Log.e("MovieRepository", "Error liking movie: ${e.message}")
             false
         }
     }
 
+
     override suspend fun getAllMovie(): List<Movie> {
         return try {
+            allMovie.clear()
             allMovie.addAll(
                 getAwaitListMovie()
             )
             allMovieLD.postValue(allMovie)
+            Log.d("movieall", allMovie.size.toString())
             allMovie
         } catch (e: Exception) {
             Log.e("MovieRepository", "Error fetching all movies: ${e.message}")
@@ -82,6 +94,7 @@ class MovieRepositoryImpl(private val context : Context) : MovieRepository {
     }
 
     private fun saveBoolean(key: String, value: Boolean): Boolean {
+        Log.d("save", key)
         return try {
             val editor = sharedPreferences.edit()
             editor.putBoolean(key, value)
@@ -93,6 +106,7 @@ class MovieRepositoryImpl(private val context : Context) : MovieRepository {
     }
 
     private fun getBoolean(key: String): Boolean {
+        Log.d("get", key)
         return try {
             sharedPreferences.getBoolean(key, DEFAULT_VALUE)
         } catch (e: Exception) {

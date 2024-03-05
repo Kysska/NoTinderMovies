@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
     private const val BASE_URL = "https://imdb-top-100-movies.p.rapidapi.com"
-    private const val API_KEY = "78d7a98f24msha5c47b458a59ac3p1d4af7jsn143f57133120"
+    private const val API_KEY = "92f031b1aamsh2df15b25ee587eap148938jsnd36d36e14761"
     private const val API_HOST = "imdb-top-100-movies.p.rapidapi.com"
 
     private val interceptor = HttpLoggingInterceptor()

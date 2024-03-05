@@ -7,7 +7,7 @@ import retrofit2.http.Headers
 interface MainAPI {
 
     @Headers(
-        "X-RapidAPI-Key: 78d7a98f24msha5c47b458a59ac3p1d4af7jsn143f57133120",
+        "X-RapidAPI-Key: 92f031b1aamsh2df15b25ee587eap148938jsnd36d36e14761",
         "X-RapidAPI-Host: imdb-top-100-movies.p.rapidapi.com"
     )
     @GET("/")

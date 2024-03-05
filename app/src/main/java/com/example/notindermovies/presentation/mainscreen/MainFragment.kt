@@ -34,7 +34,7 @@ class MainFragment : Fragment(), GestureDetector.OnGestureListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (requireActivity().applicationContext as App).appComponent.inject(this)
-        viewModel = ViewModelProvider(this, vmFactory)
+        viewModel = ViewModelProvider(requireActivity(), vmFactory)
             .get(MainViewModel::class.java)
     }
 
@@ -54,9 +54,6 @@ class MainFragment : Fragment(), GestureDetector.OnGestureListener {
             gestureDefector.onTouchEvent(motionEvent)
             true
         }
-        binding.floatingButton.setOnClickListener {
-            viewModel.likeMovie(currentMovieIndex)
-        }
         fragmentStack.forEach { fragment ->
             childFragmentManager.beginTransaction()
                 .replace(binding.mainFragment.id, fragment)
@@ -66,11 +63,19 @@ class MainFragment : Fragment(), GestureDetector.OnGestureListener {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (isLoading) {
                 // Показать индикатор загрузки
-            } else {
-                viewModel.getRandomMovie(currentMovieIndex)?.let { nextFilm(it) }
-                isLoad = false
+            } else if(isLoad) {
 
+                val movie = viewModel.randomAllMovieAndGetFirstMovie()
+                if (movie != null) {
+                    nextFilm(movie)
+                } else {
+                    Log.e("Fragment", "getRandomMovie returned null")
+                }
+                isLoad = false
             }
+        }
+        binding.floatingButton.setOnClickListener {
+            viewModel.likeMovie(currentMovieIndex-1)
         }
     }
 
@@ -89,7 +94,7 @@ class MainFragment : Fragment(), GestureDetector.OnGestureListener {
             rating = movie.rating,
             list_category = movie.genre
             )
-        childFragmentManager.beginTransaction().add(binding.mainFragment.id, movieFragment).addToBackStack(
+        childFragmentManager.beginTransaction().replace(binding.mainFragment.id, movieFragment).addToBackStack(
             TAG + currentMovieIndex.toString()).commit()
         currentMovieIndex++
         fragmentStack.add(movieFragment)

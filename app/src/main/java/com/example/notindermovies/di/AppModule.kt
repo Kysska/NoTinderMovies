@@ -11,16 +11,19 @@ import com.example.notindermovies.presentation.screenfavoritemovies.FavoriteMovi
 import com.example.notindermovies.presentation.screenfavoritemovies.LikeListFragment
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 
 @Module
 class AppModule(val context:Context) {
 
     @Provides
+    @Singleton
     fun provideContext() :Context{
         return context
     }
 
     @Provides
+    @Singleton
     fun provideMainViewModelFactory(
         likeMovie: LikeMovie,
         getAllMovie: GetAllMovie
@@ -29,6 +32,7 @@ class AppModule(val context:Context) {
     }
 
     @Provides
+    @Singleton
     fun provideFavoriteMoviesViewModelFactory(
         getFavoriteList: GetFavoriteList
     ) : FavoriteMoviesViewModelFactory{
@@ -36,11 +40,13 @@ class AppModule(val context:Context) {
     }
 
     @Provides
+    @Singleton
     fun provideMainFragment(): MainFragment {
         return MainFragment()
     }
 
     @Provides
+    @Singleton
     fun provideLikeList(): LikeListFragment {
         return LikeListFragment()
     }

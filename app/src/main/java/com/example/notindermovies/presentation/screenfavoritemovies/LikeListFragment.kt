@@ -26,7 +26,7 @@ class LikeListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (requireActivity().applicationContext as App).appComponent.inject(this)
-        viewModel = ViewModelProvider(this, vmFactory).get(FavoriteMoviesViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity(), vmFactory).get(FavoriteMoviesViewModel::class.java)
         viewModel.likeMovie.observe(requireActivity()){
             adapter.films = it
         }
